@@ -40,10 +40,38 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
-
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        let mut name: String = String::from("John");
+        let mut age: usize = 30;
+        let mut sp: Vec<String> = s.to_string().split(',').map(|s| s.to_string()).collect(); // 根据,划分为vector
+        if sp.len()==2 {
+            match sp[1].parse::<usize>(){
+                Ok(x) => {
+                    age = x;
+                }
+                Err(_) => {
+                    age = 30;
+                    sp[0] = "".to_string();
+                }
+            }
+            match sp[0].len(){
+                0 => {age = 30}
+                _ => {
+                    name = sp[0].clone();
+                }
+            };
+            Person {
+                name,
+                age,
+            }
+        }
+        else {
+            Person {
+                name,
+                age,
+            }
+        }
     }
 }
 
