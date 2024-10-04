@@ -29,13 +29,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,15 +69,49 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self {
+        let mut merged_list = LinkedList::new();
+        
+        // Create pointers to the current nodes in both lists
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+        
+        // Merge both lists by comparing the node values
+        while let (Some(a), Some(b)) = (current_a, current_b) {
+            unsafe {
+                let val_a = &(*a.as_ptr()).val;
+                let val_b = &(*b.as_ptr()).val;
+                
+                if val_a <= val_b {
+                    merged_list.add(val_a.clone());
+                    current_a = (*a.as_ptr()).next;  // Move to the next node in list_a
+                } else {
+                    merged_list.add(val_b.clone());
+                    current_b = (*b.as_ptr()).next;  // Move to the next node in list_b
+                }
+            }
         }
-	}
+
+        // If there are remaining nodes in list_a, append them to merged_list
+        while let Some(a) = current_a {
+            unsafe {
+                let val_a = &(*a.as_ptr()).val;
+                merged_list.add(val_a.clone());
+                current_a = (*a.as_ptr()).next;
+            }
+        }
+
+        // If there are remaining nodes in list_b, append them to merged_list
+        while let Some(b) = current_b {
+            unsafe {
+                let val_b = &(*b.as_ptr()).val;
+                merged_list.add(val_b.clone());
+                current_b = (*b.as_ptr()).next;
+            }
+        }
+
+        merged_list
+    }
 }
 
 impl<T> Display for LinkedList<T>
