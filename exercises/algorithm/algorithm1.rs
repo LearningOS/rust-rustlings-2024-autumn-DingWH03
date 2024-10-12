@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -71,47 +70,50 @@ impl<T: std::cmp::PartialOrd> LinkedList<T> {
     }
 	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self {
         let mut merged_list = LinkedList::new();
-        
-        // Create pointers to the current nodes in both lists
-        let mut current_a = list_a.start;
-        let mut current_b = list_b.start;
-        
-        // Merge both lists by comparing the node values
-        while let (Some(a), Some(b)) = (current_a, current_b) {
+        let mut nodep_a = list_a.start;
+        let mut nodep_b = list_b.start;
+        let mut last: Option<NonNull<Node<T>>> = None;
+    
+        // 设置起始结点
+        while let (Some(node_a), Some(node_b)) = (nodep_a, nodep_b) {
             unsafe {
-                let val_a = &(*a.as_ptr()).val;
-                let val_b = &(*b.as_ptr()).val;
-                
-                if val_a <= val_b {
-                    merged_list.add(val_a.clone());
-                    current_a = (*a.as_ptr()).next;  // Move to the next node in list_a
+                if (*node_a.as_ptr()).val < (*node_b.as_ptr()).val {
+                    if last.is_none() {
+                        merged_list.start = Some(node_a);
+                    } else {
+                        (*last.unwrap().as_ptr()).next = Some(node_a);
+                    }
+                    last = Some(node_a);
+                    nodep_a = (*node_a.as_ptr()).next;
                 } else {
-                    merged_list.add(val_b.clone());
-                    current_b = (*b.as_ptr()).next;  // Move to the next node in list_b
+                    if last.is_none() {
+                        merged_list.start = Some(node_b);
+                    } else {
+                        (*last.unwrap().as_ptr()).next = Some(node_b);
+                    }
+                    last = Some(node_b);
+                    nodep_b = (*node_b.as_ptr()).next;
                 }
             }
         }
-
-        // If there are remaining nodes in list_a, append them to merged_list
-        while let Some(a) = current_a {
+    
+        // 将 list_a 或 list_b 的剩余部分直接接到合并后的链表末尾
+        let remaining = if nodep_a.is_some() { nodep_a } else { nodep_b };
+        if let Some(last_node) = last {
             unsafe {
-                let val_a = &(*a.as_ptr()).val;
-                merged_list.add(val_a.clone());
-                current_a = (*a.as_ptr()).next;
+                (*last_node.as_ptr()).next = remaining;
             }
+        } else {
+            merged_list.start = remaining; // 如果一个链表为空，则直接指向另一个链表
         }
-
-        // If there are remaining nodes in list_b, append them to merged_list
-        while let Some(b) = current_b {
-            unsafe {
-                let val_b = &(*b.as_ptr()).val;
-                merged_list.add(val_b.clone());
-                current_b = (*b.as_ptr()).next;
-            }
-        }
-
+    
+        // 更新链表长度和结束结点
+        merged_list.length = list_a.length + list_b.length;
+        merged_list.end = if list_b.end.is_some() { list_b.end } else { list_a.end };
+    
         merged_list
     }
+    
 }
 
 impl<T> Display for LinkedList<T>
