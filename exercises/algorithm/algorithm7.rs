@@ -3,7 +3,6 @@
 	This question requires you to use a stack to achieve a bracket match
 */
 
-// I AM NOT DONE
 #[derive(Debug)]
 struct Stack<T> {
 	size: usize,
@@ -31,9 +30,13 @@ impl<T> Stack<T> {
 		self.size += 1;
 	}
 	fn pop(&mut self) -> Option<T> {
-		// TODO
-		None
-	}
+        if self.size > 0 {
+            self.size -= 1;
+            self.data.pop() // \u5f39\u51fa\u6808\u9876\u5143\u7d20
+        } else {
+            None
+        }
+    }
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
 			return None;
@@ -99,11 +102,40 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 	}
 }
 
-fn bracket_match(bracket: &str) -> bool
-{
-	//TODO
-	true
+fn bracket_match(bracket: &str) -> bool {
+    let mut stack = Stack::new(); // 使用自定义栈
+    for ch in bracket.chars() {
+        match ch {
+            '(' | '{' | '[' => {
+                stack.push(ch); // 左括号入栈
+            }
+            ')' => {
+                if let Some('(') = stack.pop() {
+                    continue; // 匹配成功
+                } else {
+                    return false; // 匹配失败
+                }
+            }
+            '}' => {
+                if let Some('{') = stack.pop() {
+                    continue; // 匹配成功
+                } else {
+                    return false; // 匹配失败
+                }
+            }
+            ']' => {
+                if let Some('[') = stack.pop() {
+                    continue; // 匹配成功
+                } else {
+                    return false; // 匹配失败
+                }
+            }
+            _ => continue, // 忽略非括号字符
+        }
+    }
+    stack.is_empty() // 遍历结束后，栈应为空
 }
+
 
 #[cfg(test)]
 mod tests {

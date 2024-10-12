@@ -3,10 +3,27 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
+fn sort<T: std::cmp::PartialOrd>(array: &mut [T]){
 	//TODO
+    let length = array.len();
+    let mut i: usize = 0;
+    let mut j:usize = 0;
+    // let mut swap: T;
+    while i<length{
+        while j<length-1{
+            if(array[j]>array[j+1]){
+                // swap = array[j+1];
+                // array[j+1] = array[j];
+                // array[j] = swap;
+                // std::mem::swap(&mut array[j], &mut array[j + 1]);
+                array.swap(j+1, j);
+            }
+            j = j + 1;
+        }
+        j = 0;
+        i = i + 1;
+    }
 }
 #[cfg(test)]
 mod tests {
